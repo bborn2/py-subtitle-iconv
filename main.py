@@ -14,14 +14,19 @@ subtitle_ext = ['srt', 'ass']
 def getSubtitleFile(root_dir): 
     files = []
 
-    for lists in os.listdir(root_dir):
-        path = os.path.join(root_dir, lists) 
+    if os.path.isfile(root_dir):
+        for x in subtitle_ext:
+            if root_dir.endswith(x):
+                files.append(os.path.abspath(root_dir))
+    else:
+        for lists in os.listdir(root_dir):
+            path = os.path.join(root_dir, lists) 
 
-        if os.path.isfile(path): 
-            for x in subtitle_ext:
-                if path.endswith(x):
-                    files.append(os.path.abspath(path))
-                    break
+            if os.path.isfile(path): 
+                for x in subtitle_ext:
+                    if path.endswith(x):
+                        files.append(os.path.abspath(path))
+                        break
     return files
 
 def detect_file_encoding(file_path):
@@ -38,6 +43,21 @@ def write_file(file_path, content):
 
 def del_file(file_path):
     os.remove(file_path)
+
+def check_codec(file_path, c):
+
+    fi = codecs.open(file_path,'rb',c)
+
+    for x in range(50):
+        print(fi.readline())
+
+    fi.close()
+
+    str = input("OK? (yes/others)");
+    if str != 'yes':
+        return False
+    return True
+
 
 def run():
         
@@ -59,23 +79,32 @@ def run():
     except getopt.GetoptError:
         print('python main.py -p [path]')
         exit()
- 
+
 
     files = getSubtitleFile(path)
 
     for f in files:
+        print('file :', f)
+
         c = detect_file_encoding(f)
+
+        print(c)
 
         if c == 'utf-8':
             print('skip', f)
             continue
+        elif c is None:
+            # check_codec(f, 'utf-16')
+            print ('error ', f)
+            continue
 
-        fi = codecs.open(f,'r',c)
+        fi = codecs.open(f,'rb',c, errors = 'ignore')
 
         if quite == False:
 
             for x in range(50):
                 print(fi.readline())
+            print(f)
             str = input("OK? (yes/others)");
             if str != 'yes':
                 continue

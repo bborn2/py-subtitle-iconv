@@ -1,4 +1,4 @@
-# py-subtitile-iconv
+# py-subtitle-iconv
 # 转换字幕文件编码格式
 
 
